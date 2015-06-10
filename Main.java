@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.stream.*;
-
 /**
  * Compute the keyword frequency of JSON models.
  */
@@ -22,12 +20,12 @@ public class Main {
   private static final Comparator<Integer> BY_DESCENDING_ORDER = BY_ASCENDING_ORDER.reversed();
 
   /** Folder containing JSON files. */
-  private static final String PATH = "../models";
+  private static final String PATH = "models/";
   /** Map a keyword to its number of occurrences. */
   private static Map<String, Integer> occurrences = new LinkedHashMap<String, Integer>();
   private static final int STAT_DIGIT = 5;
 
-  public static void main (String[] args) throws Exception{
+  public static void main (String[] args) {
     File models = new File(PATH);
     for (File f : models.listFiles())
       parseFile(f);
@@ -59,7 +57,7 @@ public class Main {
   private static void parseFile(File name) {
     try {
       Scanner s = new Scanner(name);
-      String pattern = "\"([a-zA-Z._0-9]+)\"";
+      String pattern = "\"([a-zA-Z.\\[\\]_0-9]+)\"";
       Pattern p = Pattern.compile(pattern);
 
       while (s.hasNextLine()) {
