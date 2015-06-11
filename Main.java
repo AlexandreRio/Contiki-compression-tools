@@ -24,6 +24,9 @@ public class Main {
   /** Map a keyword to its number of occurrences. */
   private static Map<String, Integer> occurrences = new LinkedHashMap<String, Integer>();
   private static final int STAT_DIGIT = 5;
+ 
+  private static final float THRESHOLD_FREQUENCY = 0.005f;
+  private static final float THRESHOLD_LENGTH    = 3;
 
   public static void main (String[] args) {
     File models = new File(PATH);
@@ -86,23 +89,44 @@ public class Main {
     for (String o : occurrences.keySet())
       totalOccurences += occurrences.get(o);
 
-    String freq;
+    double freq;
+    String freqPrint;
+    int attrLength;
     for (String o : occurrences.keySet()) {
-      freq = ("" + ((double)occurrences.get(o)/totalOccurences)*100).substring(0, STAT_DIGIT);
-      System.err.println(occurrences.get(o) + "\t" + freq + "%  " + o);
+      freq =(double)occurrences.get(o)/totalOccurences; 
+      freqPrint = ("" + freq*100).substring(0, STAT_DIGIT);
+      attrLength = o.length();
+
+      if (freq >= THRESHOLD_FREQUENCY && attrLength >= THRESHOLD_LENGTH )
+	System.err.println(occurrences.get(o) + "\t" + freqPrint + "%  " + o);
     }
   }
 
+  //TODO merge conditions to print
   private static void produceCTableAssociation() {
     String alpha = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+    int totalOccurences = 0;
+    for (String o : occurrences.keySet())
+      totalOccurences += occurrences.get(o);
 
     List<String> set = new ArrayList<String>();
     GenerateUniques(set, "", alpha, 2);
 
     int i=0;
 
-    for (String o : occurrences.keySet())
-      System.out.println("{\"" + o + "\",\"" + set.get(i++) + "\"},");
+    double freq;
+    String freqPrint;
+    int attrLength;
+    for (String o : occurrences.keySet()) {
+      freq =(double)occurrences.get(o)/totalOccurences; 
+      freqPrint = ("" + freq*100).substring(0, STAT_DIGIT);
+      attrLength = o.length();
+
+      //print on err output to avoid buffer errors, order is important
+      if (freq >= THRESHOLD_FREQUENCY && attrLength >= THRESHOLD_LENGTH )
+	System.err.println("{\"" + o + "\",\"" + set.get(i++) + "\"},");
+    }
   }
 
   private static void GenerateUniques(List<String> coll, String prefix, String chars, int depth) {
