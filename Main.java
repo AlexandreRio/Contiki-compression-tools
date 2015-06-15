@@ -10,6 +10,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Comparator;
+import java.util.Collections;
 
 /**
  * Compute the keyword frequency of JSON models.
@@ -24,9 +26,9 @@ public class Main {
   /** Map a keyword to its number of occurrences. */
   private static Map<String, Integer> occurrences = new LinkedHashMap<String, Integer>();
   private static final int STAT_DIGIT = 5;
- 
-  private static final float THRESHOLD_FREQUENCY = 0.005f;
-  private static final float THRESHOLD_LENGTH    = 3;
+
+  private static final float THRESHOLD_FREQUENCY = 0.00f;
+  private static final float THRESHOLD_LENGTH    = 1;
 
   public static void main (String[] args) {
     File models = new File(PATH);
@@ -42,11 +44,11 @@ public class Main {
 
     if (args.length > 0) {
       if (args[0].equals("--stat"))
-	displayResults();
+        displayResults();
       else if (args[0].equals("--table"))
-	produceCTableAssociation();
+        produceCTableAssociation();
       else
-	System.out.println("Options are --stat and --table");
+        System.out.println("Options are --stat and --table");
     } else
       System.out.println("Options are --stat and --table");
   }
@@ -64,15 +66,15 @@ public class Main {
       Pattern p = Pattern.compile(pattern);
 
       while (s.hasNextLine()) {
-	Matcher m = p.matcher(s.nextLine());
-	while (m.find()) {
-	  String key = m.group(1);
-	  if (occurrences.containsKey(key)) {
-	    occurrences.put(key, occurrences.get(key) + 1);
-	  } else {
-	    occurrences.put(key, 1);
-	  }
-	}
+        Matcher m = p.matcher(s.nextLine());
+        while (m.find()) {
+          String key = m.group(1);
+          if (occurrences.containsKey(key)) {
+            occurrences.put(key, occurrences.get(key) + 1);
+          } else {
+            occurrences.put(key, 1);
+          }
+        }
       }
     } catch (FileNotFoundException e) {
       System.err.println("No file found " + e.getMessage());
@@ -98,20 +100,28 @@ public class Main {
       attrLength = o.length();
 
       if (freq >= THRESHOLD_FREQUENCY && attrLength >= THRESHOLD_LENGTH )
-	System.err.println(occurrences.get(o) + "\t" + freqPrint + "%  " + o);
+        System.err.println(occurrences.get(o) + "\t" + freqPrint + "%  " + o);
     }
   }
 
   //TODO merge conditions to print
   private static void produceCTableAssociation() {
-    String alpha = "abcdefghijklmnopqrstuvwxyz0123456789";
+    String alpha = "[]()abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     int totalOccurences = 0;
     for (String o : occurrences.keySet())
       totalOccurences += occurrences.get(o);
 
     List<String> set = new ArrayList<String>();
-    GenerateUniques(set, "", alpha, 2);
+    GenerateUniquesSmaller(set, "", alpha, 2);
+
+    Comparator<String> lengthComparator = new Comparator<String>(){
+      public int compare(String s1, String s2) {
+        return s1.length() - s2.length();
+      }
+    };
+
+    Collections.sort(set, lengthComparator);
 
     int i=0;
 
@@ -125,17 +135,18 @@ public class Main {
 
       //print on err output to avoid buffer errors, order is important
       if (freq >= THRESHOLD_FREQUENCY && attrLength >= THRESHOLD_LENGTH )
-	System.err.println("{\"" + o + "\",\"" + set.get(i++) + "\"},");
+        System.err.println("{\"" + o + "\",\"" + set.get(i++) + "\"},");
     }
   }
 
-  private static void GenerateUniques(List<String> coll, String prefix, String chars, int depth) {
-    if (depth-- == 0) return;
-    for (int i = 0; i < chars.length(); i++) {
-      String str = prefix + chars.charAt(i);
-      coll.add(str);
-      GenerateUniques(coll, str, chars, depth);
+  private static void GenerateUniquesSmaller(List<String> coll, String prefix, String chars, int depth) {
+    if (depth-- == 0)
+      return;
+    for (int j=0;j<chars.length(); j++) {
+      coll.add(prefix + chars.charAt(j));
+      GenerateUniquesSmaller(coll, prefix + chars.charAt(j), chars, depth);
     }
   }
+
 
 }
