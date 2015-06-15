@@ -62,7 +62,7 @@ public class Main {
   private static void parseFile(File name) {
     try {
       Scanner s = new Scanner(name);
-      String pattern = "\"([a-zA-Z.\\[\\]_0-9]+)\"";
+      String pattern = "\"([a-zA-Z.\\/\\[\\]_\\-0-9]+)\"";
       Pattern p = Pattern.compile(pattern);
 
       while (s.hasNextLine()) {
