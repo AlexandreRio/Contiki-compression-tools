@@ -106,7 +106,7 @@ public class Main {
 
   //TODO merge conditions to print
   private static void produceCTableAssociation() {
-    String alpha = "[]()abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    String alpha = "[]()abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     int totalOccurences = 0;
     for (String o : occurrences.keySet())
